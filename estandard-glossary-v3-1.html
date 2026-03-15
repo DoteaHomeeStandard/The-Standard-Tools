@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The éStandard Material Glossary — Dotéa Home</title>
+
+<style>
+  :root {
+    --cream: #FAF8F4;
+    --parchment: #F2EDE4;
+    --tan: #C4A882;
+    --brown: #6B4F35;
+    --dark: #2C1F14;
+    --muted: #9A8878;
+    --pass: #4A7C59;
+    --pass-bg: #EDF4EF;
+    --warn: #A0622A;
+    --warn-bg: #FBF2EA;
+    --fail: #8B3A3A;
+    --fail-bg: #FAF0F0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--dark); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 300; min-height: 100vh; }
+
+  .page { max-width: 680px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+  .brand { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 300; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--tan); margin-bottom: 3rem; }
+
+  .title-block { margin-bottom: 2.5rem; }
+  .title-block h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 300; font-size: 48px; line-height: 1.1; color: var(--dark); margin-bottom: 0.5rem; }
+  .title-block h1 em { font-style: italic; color: var(--brown); }
+  .title-block p { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 480px; }
+
+  .search-wrap { position: relative; margin-bottom: 1rem; }
+  .search-wrap input {
+    width: 100%; padding: 14px 20px; padding-right: 48px;
+    background: #fff; border: 0.5px solid #DDD8D0;
+    border-radius: 2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 300; font-size: 15px; color: var(--dark);
+    outline: none; transition: border-color 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .search-wrap input::placeholder { color: #BEB8B0; }
+  .search-wrap input:focus { border-color: var(--tan); }
+  .search-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--tan); font-size: 16px; pointer-events: none; }
+
+  .filters { display: flex; gap: 8px; margin-bottom: 2rem; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 14px; border: 0.5px solid #DDD8D0; border-radius: 100px; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.06em; color: var(--muted); cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+  .filter-btn:hover { border-color: var(--tan); color: var(--brown); }
+  .filter-btn.active { background: var(--dark); border-color: var(--dark); color: var(--cream); }
+
+  .results-count { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.25rem; }
+
+  .entry { border-top: 0.5px solid #E8E3DA; padding: 1.5rem 0; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .entry-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+  .entry-name { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: 26px; color: var(--dark); line-height: 1.1; }
+  .entry-name span { font-style: italic; color: var(--brown); font-weight: 300; }
+  .entry-cat { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tan); margin-top: 4px; }
+
+  .scores { display: flex; gap: 6px; flex-shrink: 0; margin-top: 4px; }
+  .score { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 400; letter-spacing: 0.04em; }
+  .score.pass { background: var(--pass-bg); color: var(--pass); }
+  .score.warn { background: var(--warn-bg); color: var(--warn); }
+  .score.fail { background: var(--fail-bg); color: var(--fail); }
+  .score-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .score.pass .score-dot { background: var(--pass); }
+  .score.warn .score-dot { background: var(--warn); }
+  .score.fail .score-dot { background: var(--fail); }
+
+  .criteria-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 0.75rem; }
+  .criterion-card { padding: 10px 12px; border-radius: 2px; }
+  .criterion-card.pass { background: var(--pass-bg); }
+  .criterion-card.warn { background: var(--warn-bg); }
+  .criterion-card.fail { background: var(--fail-bg); }
+  .criterion-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+  .criterion-card.pass .criterion-label { color: var(--pass); }
+  .criterion-card.warn .criterion-label { color: var(--warn); }
+  .criterion-card.fail .criterion-label { color: var(--fail); }
+  .criterion-text { font-size: 12px; color: var(--dark); line-height: 1.5; }
+
+  .entry-note { font-size: 13px; color: var(--muted); line-height: 1.7; }
+  .entry-note strong { color: var(--brown); font-weight: 400; }
+
+  .assessment-nudge { margin-top: 0.75rem; font-size: 12px; color: var(--tan); font-style: italic; }
+
+  .empty { text-align: center; padding: 3rem 0; color: var(--muted); font-size: 14px; }
+  .empty strong { display: block; font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: var(--dark); margin-bottom: 0.5rem; font-weight: 400; }
+
+  .divider { border: none; border-top: 0.5px solid #E8E3DA; margin: 0; }
+
+  @media (max-width: 520px) {
+    .title-block h1 { font-size: 36px; }
+    .criteria-row { grid-template-columns: 1fr; }
+    .scores { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="brand">Dotéa Home · The éStandard</div>
+
+  <div class="title-block">
+    <h1>Material <em>Glossary</em></h1>
+    <p>Every material, construction type, and finish — read through the éStandard. Know what holds up before you buy.</p>
+  </div>
+
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Search marble, linen, MDF, mortise & tenon…" oninput="render()" autocomplete="off" />
+    <span class="search-icon">↗</span>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('material', this)">Materials</button>
+    <button class="filter-btn" onclick="setFilter('construction', this)">Construction</button>
+    <button class="filter-btn" onclick="setFilter('finish', this)">Finishes</button>
+  </div>
+
+  <div class="results-count" id="count"></div>
+  <div id="results"></div>
+
+</div>
+
+<script>
+const PASS = 'pass', WARN = 'warn', FAIL = 'fail';
+
+const entries = [
+  // MATERIALS — WOOD
+  { name: 'Solid hardwood', aka: 'oak, walnut, maple, ash', cat: 'material', sub: 'Wood',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'The benchmark. Dents and scratches are surface events — sand, refinish, restore. Solid throughout means wear reveals more of the same material.',
+    wNote: 'Tolerates cleaning with mild soap and water. Sealed surfaces handle spills well. Avoid prolonged moisture.',
+    bNote: 'Ages into itself. Grain deepens, patina develops. The piece you buy at 35 looks better at 50.',
+    nudge: false },
+
+  { name: 'Plywood core', aka: 'engineered wood, Baltic birch', cat: 'material', sub: 'Wood',
+    d: PASS, w: WARN, b: WARN,
+    dNote: 'Cross-laminated layers resist warping and splitting better than solid wood in humid conditions. Structurally stable for most residential use.',
+    wNote: 'Sealed edges and surfaces clean easily. Exposed edges absorb moisture — check that all edges are banded or finished.',
+    bNote: 'Does not age like solid wood. Surface veneer can delaminate over time. Acceptable in well-made case goods.',
+    nudge: true },
+
+  { name: 'MDF', aka: 'medium-density fibreboard', cat: 'material', sub: 'Wood',
+    d: WARN, w: FAIL, b: WARN,
+    dNote: 'Heavy and initially rigid but has no structural memory. Screws strip over time, edges chip easily, and it cannot be refinished.',
+    wNote: 'Swells and crumbles when exposed to moisture. A spilled glass left too long is permanent damage. Not suitable for high-contact surfaces.',
+    bNote: 'Accepts paint uniformly — often used for painted case goods. Fine in low-stress applications. Not a long-term investment piece.',
+    nudge: true },
+
+  { name: 'Particleboard', aka: 'chipboard, furniture board', cat: 'material', sub: 'Wood',
+    d: FAIL, w: FAIL, b: FAIL,
+    dNote: 'The lowest grade. Compresses under load, strips immediately, and cannot be repaired. Fails within 3-5 years under regular household use.',
+    wNote: 'Disintegrates with moisture exposure. Any spill that reaches the substrate is permanent structural damage.',
+    bNote: 'No patina, no recovery, no second life. If wear reveals particleboard, the piece was never durable.',
+    nudge: true },
+
+  // MATERIALS — UPHOLSTERY
+  { name: 'Performance fabric', aka: 'Crypton, Sunbrella, solution-dyed acrylic', cat: 'material', sub: 'Upholstery',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'Engineered for abrasion resistance. High rub counts (25,000+) mean the surface holds up to years of daily contact without pilling or thinning.',
+    wNote: 'The closest thing to washable upholstery exists. Most clean with soap and water. Many are stain-treated at the fibre level.',
+    bNote: 'No longer reads as clinical. Many performance fabrics now come in textures and weaves that are genuinely beautiful.',
+    nudge: false },
+
+  { name: 'Slipcover (removable)', aka: 'machine-washable cover', cat: 'material', sub: 'Upholstery',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'The cover takes the damage. The sofa underneath is protected. Replace or wash the cover — the frame lasts indefinitely.',
+    wNote: 'Machine washable is the gold standard. The cover is the maintenance. No professional cleaning, no anxiety.',
+    bNote: 'Fresh cover = fresh sofa. Easy to update as taste evolves. Built for a lived-in home.',
+    nudge: false },
+
+  { name: 'Linen (natural)', aka: 'flax linen, Belgian linen', cat: 'material', sub: 'Upholstery',
+    d: WARN, w: WARN, b: PASS,
+    dNote: 'Strong fibre but untreated linen pills and thins with heavy abrasion. Best in low-traffic pieces — a bedroom chair, a reading nook.',
+    wNote: 'Absorbs stains readily. Spot clean only. Professional cleaning recommended for spills. Requires mindful daily life.',
+    bNote: 'One of the most beautiful upholstery materials available. The texture, the drape, the way it catches light. Worth it in the right application.',
+    nudge: true },
+
+  { name: 'Velvet', aka: 'cotton velvet, poly velvet, mohair', cat: 'material', sub: 'Upholstery',
+    d: WARN, w: WARN, b: PASS,
+    dNote: 'Pile crushes and shines in high-contact zones over time. Poly velvet holds up better than cotton. Avoid in daily-use seating.',
+    wNote: 'Water marks easily. Vacuum only in pile direction. Liquid spills require immediate blotting — no rubbing.',
+    bNote: 'Extraordinary. Nothing else does what velvet does in a room. Worth considering in pieces that get admired more than sat on daily.',
+    nudge: true },
+
+  { name: 'Leather (full-grain)', aka: 'top-grain leather, aniline leather', cat: 'material', sub: 'Upholstery',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'The top layer of the hide — the strongest, most durable part. Develops a patina with age rather than deteriorating. A 20-year-old full-grain sofa looks intentional.',
+    wNote: 'Wipe clean with a damp cloth. Condition twice a year. Scratches buff out or blend in. One of the most maintainable upholstery surfaces.',
+    bNote: 'Ages into something better than what you bought. The definition of durable beauty.',
+    nudge: false },
+
+  { name: 'Bonded leather', aka: 'faux leather, PU leather, bicast', cat: 'material', sub: 'Upholstery',
+    d: FAIL, w: FAIL, b: FAIL,
+    dNote: 'Leather scraps bonded with polyurethane. Peels, cracks, and flakes within 2-4 years of regular use. Cannot be repaired — only replaced.',
+    wNote: 'Once the surface starts peeling, cleaning makes it worse. There is no maintenance path that extends its life.',
+    bNote: 'Looks like leather on day one. Looks like a failure by year three. Not a Dot\u00e9a Home material.',
+    nudge: true },
+
+  // MATERIALS — STONE & METAL
+  { name: 'Marble (sealed)', aka: 'Carrara, Calacatta, Nero Marquina', cat: 'material', sub: 'Stone',
+    d: PASS, w: WARN, b: PASS,
+    dNote: 'Structurally one of the most durable surfaces available. Does not scratch from normal use. Chips at edges if impacted but the field is virtually indestructible.',
+    wNote: 'Porous and acid-sensitive unsealed. Properly sealed marble resists most spills if wiped promptly. Re-seal every 1-2 years. Avoid citrus, wine, vinegar.',
+    bNote: 'The material that defines the room. No two slabs identical. Gets more beautiful with careful use.',
+    nudge: true },
+
+  { name: 'Quartz (engineered)', aka: 'Silestone, Caesarstone', cat: 'material', sub: 'Stone',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'Non-porous by nature. Harder than most natural stones. Resists chipping and cracking under normal residential use.',
+    wNote: 'Wipe clean with soap and water. Does not require sealing. Highly resistant to staining. The practical alternative to marble.',
+    bNote: 'Has improved enormously. Many quartz surfaces now read as genuinely beautiful rather than obviously synthetic.',
+    nudge: false },
+
+  { name: 'Powder-coated metal', aka: 'powder coat steel, aluminium frame', cat: 'material', sub: 'Metal',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'The coating bonds to the metal and resists chipping far better than spray paint. Structurally, metal frames outlast wood in most stress applications.',
+    wNote: 'Wipe clean with damp cloth. Avoid abrasive cleaners that dull the finish. Chips can be touched up with matching paint.',
+    bNote: 'A quality powder coat finish reads as intentional and refined, not industrial. Works in most aesthetic directions.',
+    nudge: false },
+
+  // CONSTRUCTION TYPES
+  { name: 'Mortise & tenon', aka: 'traditional joinery', cat: 'construction', sub: 'Joinery',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'The gold standard. Interlocking wood joints that tighten under stress rather than loosening. A piece with mortise & tenon joinery can last generations.',
+    wNote: 'Joint integrity is unaffected by cleaning. No hardware to loosen or corrode.',
+    bNote: 'Invisible quality. The mark of a piece built to last rather than built to sell.',
+    nudge: false },
+
+  { name: 'Dowelled joints', aka: 'wood dowels, dowel pins', cat: 'construction', sub: 'Joinery',
+    d: PASS, w: PASS, b: WARN,
+    dNote: 'Solid when well-executed. Machine-cut dowels in quality furniture hold well under normal stress. Better than knock-down hardware, not as strong as mortise & tenon.',
+    wNote: 'No maintenance concerns specific to the joinery.',
+    bNote: 'Neutral. Neither a selling point nor a concern at this quality level.',
+    nudge: false },
+
+  { name: 'Knock-down hardware', aka: 'cam locks, barrel nuts, flat-pack hardware', cat: 'construction', sub: 'Joinery',
+    d: WARN, w: WARN, b: WARN,
+    dNote: 'Designed for assembly and disassembly, not permanence. Hardware loosens over years of use and vibration. Can be retightened but will eventually strip.',
+    wNote: 'Hardware can corrode in humid environments. Check periodically and retighten.',
+    bNote: 'The signature of flat-pack furniture. Fine for a first home. Not a forever piece.',
+    nudge: true },
+
+  { name: 'Stapled / glued only', aka: 'no visible joinery', cat: 'construction', sub: 'Joinery',
+    d: FAIL, w: FAIL, b: FAIL,
+    dNote: 'Glue fails under cyclic stress. Staples pull through particle or MDF substrates. This construction signals a piece designed for replacement, not retention.',
+    wNote: 'Joints that rely on adhesive alone cannot be repaired when they fail.',
+    bNote: 'If the only thing holding a frame together is glue and staples, the piece does not pass the \u00e9Standard.',
+    nudge: true },
+
+  { name: 'Eight-way hand-tied', aka: '8-way hand-tied springs', cat: 'construction', sub: 'Seating',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'The highest standard in upholstered seating. Springs tied in eight directions distribute weight evenly and resist sagging for decades. Cannot be replicated by sinuous springs.',
+    wNote: 'Internal construction — no maintenance required. The seat holds its shape without intervention.',
+    bNote: 'You feel the difference immediately. A sofa that sits like this in 10 years is the one you keep.',
+    nudge: false },
+
+  { name: 'Sinuous spring / S-spring', aka: 'no-sag spring', cat: 'construction', sub: 'Seating',
+    d: WARN, w: PASS, b: WARN,
+    dNote: 'Acceptable in mid-range furniture. Less durable than eight-way hand-tied under heavy daily use. Will sag faster, particularly in the centre.',
+    wNote: 'Internal — no surface maintenance required.',
+    bNote: 'Standard. Not a disqualifier but not a long-term investment seat.',
+    nudge: true },
+
+  // FINISHES
+  { name: 'Oil finish', aka: 'hardwax oil, Danish oil, tung oil', cat: 'finish', sub: 'Wood Finish',
+    d: PASS, w: WARN, b: PASS,
+    dNote: 'Penetrates the wood rather than sitting on top. Scratches and wear are easily spot-repaired with a cloth and more oil. The surface improves with maintenance.',
+    wNote: 'Requires periodic re-oiling (1-2x per year). Resists moderate spills when promptly wiped. Not impervious — absorbs liquids if left.',
+    bNote: 'The most tactile and alive wood finish. Feels like wood, not plastic. Ages beautifully.',
+    nudge: false },
+
+  { name: 'Polyurethane (lacquer)', aka: 'poly finish, lacquer, varnish', cat: 'finish', sub: 'Wood Finish',
+    d: PASS, w: PASS, b: WARN,
+    dNote: 'Forms a hard protective film. Highly resistant to water and daily use. Scratches sit in the coating and can be spot-repaired or fully refinished.',
+    wNote: 'Easiest wood finish to maintain. Wipe clean with damp cloth. Resists most household spills.',
+    bNote: 'Can look plasticky at lower quality levels. High-quality poly finishes are nearly invisible. Functional over beautiful.',
+    nudge: false },
+
+  { name: 'Unsealed / raw wood', aka: 'unfinished wood', cat: 'finish', sub: 'Wood Finish',
+    d: WARN, w: FAIL, b: WARN,
+    dNote: 'No surface protection. Absorbs spills, stains, and marks immediately. Requires finishing before use in any household application.',
+    wNote: 'Cannot be cleaned with moisture. Stains are permanent. This is not a finished product.',
+    bNote: 'Raw wood has warmth and beauty but is not ready for a lived-in home without finishing.',
+    nudge: true },
+
+  { name: 'Ceramic / porcelain glaze', aka: 'glazed ceramic, vitrified tile', cat: 'finish', sub: 'Surface Finish',
+    d: PASS, w: PASS, b: PASS,
+    dNote: 'The glaze fires into the clay — it cannot peel or delaminate. Resistant to scratching, heat, and impact in normal use.',
+    wNote: 'One of the most cleanable surfaces available. Soap and water removes virtually everything. Grout lines require more attention.',
+    bNote: 'Extraordinary range of expression. From raw terracotta to high-gloss white — this material holds whatever aesthetic you give it.',
+    nudge: false },
+
+  { name: 'Paint (furniture grade)', aka: 'chalk paint, milk paint, enamel', cat: 'finish', sub: 'Surface Finish',
+    d: WARN, w: WARN, b: PASS,
+    dNote: 'Quality enamel is durable in low-contact areas. High-traffic surfaces chip and show wear. The substrate underneath determines long-term durability.',
+    wNote: 'Wipe clean carefully. Avoid abrasive cleaners. Touch-up chips promptly before moisture penetrates to the substrate.',
+    bNote: 'Paint transforms a piece. The colour, the finish level, the sheen. Beautiful in the right application.',
+    nudge: true },
+];
+
+let activeFilter = 'all';
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function scoreLabel(s) {
+  if (s === PASS) return 'Pass';
+  if (s === WARN) return 'Moderate';
+  return 'Fail';
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const container = document.getElementById('results');
+
+  let filtered = entries.filter(e => {
+    const matchCat = activeFilter === 'all' || e.cat === activeFilter;
+    const matchQ = !q || e.name.toLowerCase().includes(q) || (e.aka || '').toLowerCase().includes(q) || e.sub.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+
+  document.getElementById('count').textContent = filtered.length + ' ' + (filtered.length === 1 ? 'entry' : 'entries');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty"><strong>Nothing found.</strong>Try a material name, category, or finish type.</div>';
+    return;
+  }
+
+  // Group by sub
+  const groups = {};
+  filtered.forEach(e => {
+    if (!groups[e.sub]) groups[e.sub] = [];
+    groups[e.sub].push(e);
+  });
+
+  let html = '';
+  Object.entries(groups).forEach(([sub, items]) => {
+    items.forEach((e, i) => {
+      html += `
+        <div class="entry">
+          <div class="entry-top">
+            <div>
+              <div class="entry-name">${e.name}${e.aka ? ' <span>/ ' + e.aka + '</span>' : ''}</div>
+              <div class="entry-cat">${e.sub}</div>
+            </div>
+            <div class="scores">
+              <div class="score ${e.d}"><div class="score-dot"></div>Durable</div>
+              <div class="score ${e.w}"><div class="score-dot"></div>Washable</div>
+              <div class="score ${e.b}"><div class="score-dot"></div>Beautiful</div>
+            </div>
+          </div>
+          <div class="criteria-row">
+            <div class="criterion-card ${e.d}">
+              <div class="criterion-label">Durable — ${scoreLabel(e.d)}</div>
+              <div class="criterion-text">${e.dNote}</div>
+            </div>
+            <div class="criterion-card ${e.w}">
+              <div class="criterion-label">Washable — ${scoreLabel(e.w)}</div>
+              <div class="criterion-text">${e.wNote}</div>
+            </div>
+            <div class="criterion-card ${e.b}">
+              <div class="criterion-label">Beautiful — ${scoreLabel(e.b)}</div>
+              <div class="criterion-text">${e.bNote}</div>
+            </div>
+          </div>
+          ${e.nudge ? '<div class="assessment-nudge">Know what you\'re considering? The Assessment tells you if your specific piece holds up. →</div>' : ''}
+        </div>`;
+    });
+  });
+
+  container.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>

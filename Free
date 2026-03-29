@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The éStandard — Dotéa Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --oat: #F5F1EA;
+  --taupe: #C7B8A4;
+  --brown: #9A7B5C;
+  --ink: #2A2420;
+  --muted: #7A6E65;
+  --line: #DDD8D0;
+  --cream: #FAF8F4;
+  --pass-bg: #EDF3E6;
+  --pass-text: #2D5016;
+  --fail-bg: #F5EDEA;
+  --fail-text: #6B2B1F;
+}
+
+body {
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  letter-spacing: 0.01em;
+}
+
+.wrap {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.wordmark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+.wordmark em {
+  font-style: italic;
+  color: var(--brown);
+}
+.divider-line {
+  width: 40px;
+  height: 0.5px;
+  background: var(--taupe);
+  margin: 0.75rem auto;
+}
+
+/* Step nav */
+.step { display: none; }
+.step.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Progress */
+.progress {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 2.5rem;
+}
+.pd {
+  height: 1.5px;
+  flex: 1;
+  background: var(--line);
+  transition: background 0.4s;
+}
+.pd.done { background: var(--brown); }
+
+/* Typography */
+.step-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--taupe);
+  margin-bottom: 0.5rem;
+  font-weight: 400;
+}
+h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1.3;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  font-weight: 300;
+}
+
+/* Upload */
+.upload-zone {
+  border: 0.5px solid var(--line);
+  border-radius: 4px;
+  padding: 1.75rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  background: #fff;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 0.75rem;
+}
+.upload-zone:hover { border-color: var(--taupe); background: var(--oat); }
+.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon { font-size: 20px; margin-bottom: 0.4rem; }
+.upload-zone p { font-size: 13px; color: var(--muted); pointer-events: none; }
+.upload-zone .hl { color: var(--brown); }
+
+.preview-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  display: none;
+}
+
+.or-row {
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--taupe);
+  margin: 0.75rem 0;
+}
+
+/* Fields */
+.field { margin-bottom: 1rem; }
+.field label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 400;
+}
+.field input {
+  width: 100%;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 10px 12px;
+  border: 0.5px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.field input:focus { border-color: var(--brown); }
+
+/* Questions */
+.q { margin-bottom: 1.75rem; }
+.q-text {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.65;
+  margin-bottom: 0.75rem;
+  font-weight: 300;
+}
+.opts { display: flex; flex-direction: column; gap: 6px; }
+.opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 0.5px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  background: #fff;
+  transition: all 0.15s;
+  font-weight: 300;
+}
+.opt:hover { border-color: var(--taupe); background: var(--oat); }
+.opt.selected { border-color: var(--brown); background: var(--oat); color: var(--ink); }
+.opt-letter {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--taupe);
+  min-width: 14px;
+  margin-top: 2px;
+  font-weight: 400;
+}
+.opt.selected .opt-letter { color: var(--brown); }
+
+/* Button */
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--ink);
+  color: var(--oat);
+  border: none;
+  border-radius: 4px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 2rem;
+  transition: opacity 0.2s;
+}
+.btn:hover { opacity: 0.8; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-ghost {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  color: var(--brown);
+  border: 0.5px solid var(--brown);
+  border-radius: 4px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: all 0.2s;
+}
+.btn-ghost:hover { background: var(--oat); }
+
+/* Loading */
+.loading { text-align: center; padding: 4rem 1rem; }
+.spinner {
+  width: 28px; height: 28px;
+  border: 1.5px solid var(--line);
+  border-top-color: var(--brown);
+  border-radius: 50%;
+  margin: 0 auto 1.25rem;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+/* Result */
+.verdict-stamp {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  border: 0.5px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  margin-bottom: 1.5rem;
+}
+.verdict-label {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--taupe);
+  margin-bottom: 1rem;
+}
+.verdict-word {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  font-weight: 300;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.verdict-word.pass { color: var(--pass-text); }
+.verdict-word.fail { color: var(--fail-text); }
+.verdict-item {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.verdict-sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 0.5px solid var(--line);
+}
+
+.cta-box {
+  background: var(--oat);
+  border: 0.5px solid var(--line);
+  border-radius: 4px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.cta-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brown);
+  margin-bottom: 0.6rem;
+}
+.cta-head {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+.cta-body {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.cta-price {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--brown);
+  margin-bottom: 1rem;
+}
+
+.error-msg {
+  background: var(--fail-bg);
+  color: var(--fail-text);
+  font-size: 13px;
+  padding: 1rem 1.25rem;
+  border-radius: 4px;
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+.non-approval {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 0.5px solid var(--line);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="wordmark">Dotéa Home · <em>the éStandard</em></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- STEP 1: Product -->
+  <div class="step active" id="step-1">
+    <div class="progress">
+      <div class="pd done"></div><div class="pd"></div><div class="pd"></div>
+    </div>
+    <div class="step-label">Step 1 of 3</div>
+    <h2>What are you considering?</h2>
+    <p class="sub">A product link gives the most accurate result. A photo helps. Both is best.</p>
+    <img id="preview-img" class="preview-img" alt="Product preview" />
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" accept="image/*" onchange="handleFile(event)" />
+      <div class="upload-icon">↑</div>
+      <p><span class="hl">Upload a photo</span> or drag here</p>
+    </div>
+    <div class="or-row">or</div>
+    <div class="field">
+      <label>Product link <span style="color:var(--taupe);font-size:9px">(recommended)</span></label>
+      <input type="url" id="link-input" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label>Item name <span style="color:var(--taupe);font-size:9px">(optional)</span></label>
+      <input type="text" id="item-name" placeholder="e.g. Restoration Hardware Cloud Sofa" />
+    </div>
+    <div class="field">
+      <label>Price</label>
+      <input type="text" id="item-price" placeholder="$" />
+    </div>
+    <button class="btn" onclick="goTo(2)">Continue</button>
+  </div>
+
+  <!-- STEP 2: Beauty -->
+  <div class="step" id="step-2">
+    <div class="progress">
+      <div class="pd done"></div><div class="pd done"></div><div class="pd"></div>
+    </div>
+    <div class="step-label">Step 2 of 3 — Beauty</div>
+    <h2>Do you love it?</h2>
+    <p class="sub">Beauty is not a feeling. It is a conviction level. Answer honestly.</p>
+
+    <div class="q">
+      <div class="q-text">If this piece were unavailable tomorrow, your reaction would be:</div>
+      <div class="opts" id="b1">
+        <div class="opt" onclick="pick('b1',this)" data-val="A"><span class="opt-letter">A</span>I'd find something similar</div>
+        <div class="opt" onclick="pick('b1',this)" data-val="B"><span class="opt-letter">B</span>I'd be mildly disappointed</div>
+        <div class="opt" onclick="pick('b1',this)" data-val="C"><span class="opt-letter">C</span>I would actively try to secure it</div>
+      </div>
+    </div>
+    <div class="q">
+      <div class="q-text">When you imagine living with this piece for 10 years:</div>
+      <div class="opts" id="b2">
+        <div class="opt" onclick="pick('b2',this)" data-val="A"><span class="opt-letter">A</span>I assume I'll replace it eventually</div>
+        <div class="opt" onclick="pick('b2',this)" data-val="B"><span class="opt-letter">B</span>I'm unsure</div>
+        <div class="opt" onclick="pick('b2',this)" data-val="C"><span class="opt-letter">C</span>I can see it aging with the home</div>
+      </div>
+    </div>
+    <div class="q">
+      <div class="q-text">If someone questioned this purchase, you would:</div>
+      <div class="opts" id="b3">
+        <div class="opt" onclick="pick('b3',this)" data-val="A"><span class="opt-letter">A</span>Second-guess myself</div>
+        <div class="opt" onclick="pick('b3',this)" data-val="B"><span class="opt-letter">B</span>Defend it logically</div>
+        <div class="opt" onclick="pick('b3',this)" data-val="C"><span class="opt-letter">C</span>Feel completely certain</div>
+      </div>
+    </div>
+    <div class="q">
+      <div class="q-text">I am choosing this piece because:</div>
+      <div class="opts" id="b4">
+        <div class="opt" onclick="pick('b4',this)" data-val="A"><span class="opt-letter">A</span>It fits the space</div>
+        <div class="opt" onclick="pick('b4',this)" data-val="B"><span class="opt-letter">B</span>It meets my requirements</div>
+        <div class="opt" onclick="pick('b4',this)" data-val="C"><span class="opt-letter">C</span>I genuinely love it</div>
+      </div>
+    </div>
+    <button class="btn" onclick="goTo(3)">Continue</button>
+  </div>
+
+  <!-- STEP 3: API Key -->
+  <div class="step" id="step-3">
+    <div class="progress">
+      <div class="pd done"></div><div class="pd done"></div><div class="pd done"></div>
+    </div>
+    <div class="step-label">Step 3 of 3</div>
+    <h2>Apply the éStandard.</h2>
+    <p class="sub">Your result will appear immediately. No account required.</p>
+    <button class="btn" id="run-btn" onclick="runAssessment()">Apply the éStandard</button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="step" id="step-loading">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div class="loading-msg" id="loading-msg">Applying the éStandard…</div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="step" id="step-result">
+    <div class="verdict-stamp" id="verdict-stamp"></div>
+    <div id="cta-area"></div>
+    <div id="non-approval-area"></div>
+    <button class="btn-ghost" onclick="restart()">Assess another piece</button>
+  </div>
+
+</div>
+
+<script>
+let sel = {};
+let imageB64 = null;
+let imageMime = 'image/jpeg';
+
+function handleFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  imageMime = f.type || 'image/jpeg';
+  const r = new FileReader();
+  r.onload = ev => {
+    imageB64 = ev.target.result.split(',')[1];
+    const img = document.getElementById('preview-img');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+  };
+  r.readAsDataURL(f);
+}
+
+function goTo(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function pick(group, el) {
+  document.querySelectorAll('#' + group + ' .opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  sel[group] = el.dataset.val;
+}
+
+function scoreBeauty() {
+  const vals = ['b1','b2','b3','b4'].map(k => sel[k]);
+  const cs = vals.filter(v => v === 'C').length;
+  if (cs >= 3) return { pass: true, level: 'Strong aesthetic conviction' };
+  if (cs === 2) return { pass: false, level: 'Moderate preference' };
+  return { pass: false, level: 'Uncertain or trend-based' };
+}
+
+async function fetchProductPage(url) {
+  try {
+    const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url));
+    const data = await res.json();
+    if (!data.contents) return null;
+    const doc = new DOMParser().parseFromString(data.contents, 'text/html');
+    ['script','style','nav','footer','header','aside'].forEach(tag => {
+      doc.querySelectorAll(tag).forEach(el => el.remove());
+    });
+    return (doc.body?.textContent || '').replace(/\s+/g,' ').trim().slice(0, 3000);
+  } catch { return null; }
+}
+
+const loadingMsgs = [
+  'Applying the éStandard…',
+  'Reading product details…',
+  'Assessing durability…',
+  'Evaluating surface performance…',
+  'Reviewing conviction level…'
+];
+
+async function runAssessment() {
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+
+  const PROXY = 'https://assessment.doteahome.workers.dev';
+
+  const itemName  = document.getElementById('item-name').value.trim();
+  const itemPrice = document.getElementById('item-price').value.trim();
+  const link      = document.getElementById('link-input').value.trim();
+  const beauty    = scoreBeauty();
+
+  goTo('loading');
+  let msgIdx = 0;
+  const msgEl = document.getElementById('loading-msg');
+  const interval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % loadingMsgs.length;
+    msgEl.textContent = loadingMsgs[msgIdx];
+  }, 1800);
+
+  let productPageText = null;
+  if (link) {
+    msgEl.textContent = 'Reading product page…';
+    productPageText = await fetchProductPage(link);
+  }
+
+  const system = `You are the éStandard assessment engine for Dotéa Home. Return ONLY valid JSON — no preamble, no markdown.
+
+THE éSTANDARD has three binary criteria:
+DURABLE — Will it hold up under daily family use for 5–10 years? Assess frame construction, joinery, material grade, repairability. Be direct.
+WASHABLE — Can the owner maintain this themselves with products they already own? If it requires ritual care or professional service, it fails.
+BEAUTIFUL — Pre-scored from intake. Use the result provided.
+
+JSON format:
+{"itemName":"best guess if not provided","durable":{"pass":true},"washable":{"pass":true}}`;
+
+  let prompt = 'Apply the éStandard. Return only the JSON.\n\n';
+  if (itemName) prompt += 'Item: ' + itemName + '\n';
+  if (itemPrice) prompt += 'Price: ' + itemPrice + '\n';
+  if (link) prompt += 'URL: ' + link + '\n';
+  if (productPageText) prompt += '\nProduct page:\n' + productPageText + '\n';
+  prompt += '\nBeauty intake: ' + (beauty.pass ? 'PASS' : 'FAIL') + ' — ' + beauty.level;
+
+  const userContent = [];
+  if (imageB64) userContent.push({ type: 'image', source: { type: 'base64', media_type: imageMime, data: imageB64 }});
+  userContent.push({ type: 'text', text: prompt });
+
+  try {
+    const res = await fetch(PROXY, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        system,
+        messages: [{ role: 'user', content: userContent }]
+      })
+    });
+
+    clearInterval(interval);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const raw = data.content.map(b => b.text || '').join('');
+    const result = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    const durPass   = result.durable?.pass ?? false;
+    const washPass  = result.washable?.pass ?? false;
+    const beautyPass = beauty.pass;
+    const allPass   = durPass && washPass && beautyPass;
+    const displayName = itemName || result.itemName || 'Submitted piece';
+
+    renderResult(allPass, durPass, washPass, beautyPass, displayName, itemPrice);
+
+  } catch(err) {
+    clearInterval(interval);
+    goTo('result');
+    document.getElementById('verdict-stamp').innerHTML =
+      '<div class="error-msg">The assessment could not be completed. Check your API key and try again.<br><br><small style="opacity:0.5">' + err.message + '</small></div>';
+    document.getElementById('cta-area').innerHTML = '';
+    document.getElementById('non-approval-area').innerHTML = '';
+    btn.disabled = false;
+  }
+}
+
+function renderResult(allPass, durPass, washPass, beautyPass, displayName, itemPrice) {
+  const verdictWord = allPass ? 'Approved.' : 'Not Approved.';
+  const verdictClass = allPass ? 'pass' : 'fail';
+
+  const statusLine = c => c ? '✓ Pass' : '✗ Does not pass';
+
+  document.getElementById('verdict-stamp').innerHTML = `
+    <div class="verdict-label">${displayName}${itemPrice ? ' · ' + itemPrice : ''}</div>
+    <div class="verdict-word ${verdictClass}">${verdictWord}</div>
+    <div class="divider-line" style="margin:0.75rem auto;"></div>
+    <div class="verdict-item" style="color:${durPass ? 'var(--pass-text)' : 'var(--fail-text)'}">Durable — ${statusLine(durPass)}</div>
+    <div class="verdict-item" style="color:${washPass ? 'var(--pass-text)' : 'var(--fail-text)'}">Washable — ${statusLine(washPass)}</div>
+    <div class="verdict-item" style="color:${beautyPass ? 'var(--pass-text)' : 'var(--fail-text)'}">Beautiful — ${statusLine(beautyPass)}</div>
+    ${allPass ? '<div class="verdict-sub">All three criteria pass. Buy the thing.</div>' : ''}
+  `;
+
+  document.getElementById('cta-area').innerHTML = `
+    <div class="cta-box">
+      <div class="cta-label">The Full Assessment</div>
+      <div class="cta-head">Know exactly why — and what to look for instead.</div>
+      <div class="cta-body">The Assessment is a structured written evaluation of construction, material integrity, finish durability, maintenance burden, and long-term failure risk. You receive a final determination with supporting analysis — not a verdict alone.</div>
+      <div class="cta-price">$388 per piece · 5 business day turnaround</div>
+      <button class="btn" style="margin-top:0;" onclick="window.open('https://doteahome.store','_blank')">Submit for Full Assessment</button>
+    </div>
+  `;
+
+  if (!allPass) {
+    document.getElementById('non-approval-area').innerHTML = `
+      <div class="non-approval">
+        A non-approval applies only to this specific piece. It does not eliminate the category or the concept you are drawn to. If you wish to move forward, continue your search for a version that meets all three criteria. Approval is granted only when durability, washability, and beauty each pass.
+      </div>
+    `;
+  } else {
+    document.getElementById('non-approval-area').innerHTML = '';
+  }
+
+  goTo('result');
+}
+
+function restart() {
+  sel = {};
+  imageB64 = null;
+  ['link-input','item-name','item-price'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('.opt.selected').forEach(o => o.classList.remove('selected'));
+  document.getElementById('preview-img').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('run-btn').disabled = false;
+  goTo(1);
+}
+</script>
+</body>
+</html>

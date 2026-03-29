@@ -872,7 +872,7 @@ async function aiFill() {
   const materials = document.getElementById('s-materials').value.trim();
   const claims = document.getElementById('s-claims').value.trim();
 
-  showLoading(true, 'Reading product data…');
+  showLoading(true, 'Reading product page…');
   const btn = document.getElementById('ai-fill-btn');
   btn.disabled = true;
   document.getElementById('ai-status').textContent = '';
@@ -884,8 +884,13 @@ async function aiFill() {
       const data = await res.json();
       if (data.contents) {
         const doc = new DOMParser().parseFromString(data.contents, 'text/html');
-        ['script','style','nav','footer','header','aside'].forEach(t => doc.querySelectorAll(t).forEach(e => e.remove()));
-        productText = (doc.body?.textContent || '').replace(/\s+/g,' ').trim().slice(0, 4000);
+        ['script','style','nav','footer','header','aside','iframe','noscript'].forEach(t => doc.querySelectorAll(t).forEach(e => e.remove()));
+        // Only grab product-relevant text — title, description, specs
+        const title = doc.querySelector('title')?.textContent || '';
+        const metas = [...doc.querySelectorAll('meta[name="description"], meta[property="og:description"]')].map(m => m.content).join(' ');
+        const body = (doc.body?.textContent || '').replace(/\s+/g,' ').trim();
+        // Pull only first 2000 chars of body to avoid junk
+        productText = ('Title: ' + title + '\nDescription: ' + metas + '\nPage content: ' + body).slice(0, 2500);
       }
     } catch(e) { /* continue without */ }
   }
@@ -909,8 +914,8 @@ Return ONLY this JSON with no other text:
   if (price) prompt += 'Price: ' + price + '\n';
   if (materials) prompt += 'Declared materials: ' + materials + '\n';
   if (claims) prompt += 'Manufacturer claims: ' + claims + '\n';
-  if (productText) prompt += '\nProduct page content:\n' + productText;
-  prompt += '\n\nReturn only the JSON.';
+  if (productText) prompt += '\nProduct information from retailer page:\n' + productText + '\n';
+  prompt += '\nReturn only the JSON.';
 
   const proxyUrl = 'https://assessment.doteahome.workers.dev';
 

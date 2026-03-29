@@ -872,64 +872,33 @@ async function aiFill() {
   const materials = document.getElementById('s-materials').value.trim();
   const claims = document.getElementById('s-claims').value.trim();
 
-  showLoading(true, 'Reading product page…');
+  showLoading(true, 'Applying the éStandard…');
   const btn = document.getElementById('ai-fill-btn');
   btn.disabled = true;
   document.getElementById('ai-status').textContent = '';
 
-  let productText = null;
-  if (url) {
-    try {
-      const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url));
-      const data = await res.json();
-      if (data.contents) {
-        const doc = new DOMParser().parseFromString(data.contents, 'text/html');
-        ['script','style','nav','footer','header','aside','iframe','noscript'].forEach(t => doc.querySelectorAll(t).forEach(e => e.remove()));
-        // Only grab product-relevant text — title, description, specs
-        const title = doc.querySelector('title')?.textContent || '';
-        const metas = [...doc.querySelectorAll('meta[name="description"], meta[property="og:description"]')].map(m => m.content).join(' ');
-        const body = (doc.body?.textContent || '').replace(/\s+/g,' ').trim();
-        // Pull only first 2000 chars of body to avoid junk
-        productText = ('Title: ' + title + '\nDescription: ' + metas + '\nPage content: ' + body).slice(0, 2500);
-      }
-    } catch(e) { /* continue without */ }
-  }
+  const system = `You are a home goods evaluation engine for Dotéa Home. Evaluate furniture and home goods for durability and washability. Use your knowledge of brands, materials, and construction standards to make a determination.
 
-  showLoading(true, 'Applying the éStandard…');
-
-  const system = `You are a home goods evaluation engine for Dotéa Home. Assess furniture and home goods against three criteria and return structured JSON.
-
-DURABLE — Will it hold up under daily family use for 5-10 years? Assess frame, joinery, material grade, repairability.
+DURABLE — Will it hold up under daily family use for 5-10 years? Consider frame construction, joinery, material grade, and repairability for the price point and brand.
 WASHABLE — Can the owner clean and maintain this themselves without professional help or special products?
 
-Be direct and specific. State what you can determine from available information.
+Be direct. State your assessment plainly.
 
-Return ONLY this JSON with no other text:
-{"durPass":true,"durNotes":"3-4 sentences assessing structural durability","washPass":true,"washNotes":"3-4 sentences assessing surface and maintenance","closing":"Structurally, this piece demonstrates [high/moderate/insufficient] integrity under expected use. Surface performance is [stable/manageable/vulnerable] under normal maintenance. Based on intake responses, aesthetic conviction [meets/does not meet] the threshold. Therefore, this item [passes/does not pass] the e Standard."}`;
-
-  let prompt = 'Apply the éStandard to this piece.\n\n';
-  if (brand) prompt += 'Brand: ' + brand + '\n';
-  if (product) prompt += 'Product: ' + product + '\n';
-  if (category) prompt += 'Category: ' + category + '\n';
-  if (price) prompt += 'Price: ' + price + '\n';
-  if (materials) prompt += 'Declared materials: ' + materials + '\n';
-  if (claims) prompt += 'Manufacturer claims: ' + claims + '\n';
-  if (productText) prompt += '\nProduct information from retailer page:\n' + productText + '\n';
-  prompt += '\nReturn only the JSON.';
+Return ONLY valid JSON, nothing else:
+{"durPass":true,"durNotes":"3-4 direct sentences on structural durability","washPass":true,"washNotes":"3-4 direct sentences on surface maintenance","closing":"Structurally, this piece demonstrates [high/moderate/insufficient] integrity under expected use. Surface performance is [stable/manageable/vulnerable] under normal maintenance. Based on intake responses, aesthetic conviction [meets/does not meet] the threshold. Therefore, this item [passes/does not pass] the eStandard."}`;
 
   const proxyUrl = 'https://assessment.doteahome.workers.dev';
 
-  async function callClaude(includePageText) {
-    let p = 'Evaluate this home goods item.\n\n';
+  async function callClaude() {
+    let p = 'Evaluate this home goods item for durability and washability.\n\n';
     if (brand) p += 'Brand: ' + brand + '\n';
     if (product) p += 'Product: ' + product + '\n';
     if (category) p += 'Category: ' + category + '\n';
     if (price) p += 'Price: ' + price + '\n';
     if (materials) p += 'Declared materials: ' + materials + '\n';
     if (claims) p += 'Manufacturer claims: ' + claims + '\n';
-    if (url) p += 'Product URL: ' + url + '\n';
-    if (includePageText && productText) p += '\nRetailer description:\n' + productText + '\n';
-    p += '\nReturn only the JSON object.';
+    if (url) p += 'Product URL for reference: ' + url + '\n';
+    p += '\nReturn only the JSON object, no other text.';
 
     const res = await fetch(proxyUrl, {
       method: 'POST',
@@ -950,18 +919,7 @@ Return ONLY this JSON with no other text:
   }
 
   try {
-    let result;
-    try {
-      result = await callClaude(true);
-    } catch(e) {
-      if (e.message.startsWith('NONJSON') || e.message.includes('cannot')) {
-        // Retry without page content
-        document.getElementById('ai-status').textContent = 'Retrying without page content…';
-        result = await callClaude(false);
-      } else {
-        throw e;
-      }
-    }
+    const result = await callClaude();
 
     const durNotes = document.getElementById('dur-notes');
     if (durNotes) durNotes.value = result.durNotes || '';

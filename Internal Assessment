@@ -919,40 +919,58 @@ Return ONLY this JSON with no other text:
 
   const proxyUrl = 'https://assessment.doteahome.workers.dev';
 
-  try {
+  async function callClaude(includePageText) {
+    let p = 'Evaluate this home goods item.\n\n';
+    if (brand) p += 'Brand: ' + brand + '\n';
+    if (product) p += 'Product: ' + product + '\n';
+    if (category) p += 'Category: ' + category + '\n';
+    if (price) p += 'Price: ' + price + '\n';
+    if (materials) p += 'Declared materials: ' + materials + '\n';
+    if (claims) p += 'Manufacturer claims: ' + claims + '\n';
+    if (url) p += 'Product URL: ' + url + '\n';
+    if (includePageText && productText) p += '\nRetailer description:\n' + productText + '\n';
+    p += '\nReturn only the JSON object.';
+
     const res = await fetch(proxyUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
         system,
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: 'user', content: p }]
       })
     });
-
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
-
     const raw = data.content.map(b => b.text || '').join('');
-    // Extract JSON even if surrounded by other text
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON returned. Response: ' + raw.slice(0, 100));
-    const result = JSON.parse(jsonMatch[0]);
+    if (!jsonMatch) throw new Error('NONJSON:' + raw.slice(0, 80));
+    return JSON.parse(jsonMatch[0]);
+  }
 
-    // Fill durability notes + determination
+  try {
+    let result;
+    try {
+      result = await callClaude(true);
+    } catch(e) {
+      if (e.message.startsWith('NONJSON') || e.message.includes('cannot')) {
+        // Retry without page content
+        document.getElementById('ai-status').textContent = 'Retrying without page content…';
+        result = await callClaude(false);
+      } else {
+        throw e;
+      }
+    }
+
     const durNotes = document.getElementById('dur-notes');
     if (durNotes) durNotes.value = result.durNotes || '';
     setDetermination('dur', result.durPass ? 'pass' : 'fail');
 
-    // Fill washability notes + determination
     const washNotes = document.getElementById('wash-notes');
     if (washNotes) washNotes.value = result.washNotes || '';
     setDetermination('wash', result.washPass ? 'pass' : 'fail');
 
-    // Fill closing
     const closing = document.getElementById('closing-text');
     if (closing && result.closing) closing.value = result.closing;
 
@@ -1259,3 +1277,4 @@ switchFormType();
 </script>
 </body>
 </html>
+

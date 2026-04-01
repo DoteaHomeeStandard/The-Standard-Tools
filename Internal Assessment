@@ -1120,36 +1120,67 @@ function generatePDF() {
   y = 96;
 
   // ── PRODUCT SNAPSHOT ────────────────────────────────────────────────────────
+  const snapFields = [
+    ['Brand', brand], ['Product', product],
+    ['Category', category], ['Price', price ? '$' + price : '—'],
+    ['Declared Materials', materials], ['Construction', construction],
+    ['Manufacturer Claims', claims], ['Construction Transparency', (constructionTransparency || '—').charAt(0).toUpperCase() + (constructionTransparency || '—').slice(1)]
+  ];
+  const col = contentW / 2;
+
+  // Calculate dynamic height
+  let snapH = 28;
+  snapFields.forEach((pair, i) => {
+    if (i % 2 === 0) {
+      const lLines = doc.splitTextToSize(pair[1], col - 24);
+      const rPair = snapFields[i + 1];
+      const rLines = rPair ? doc.splitTextToSize(rPair[1], col - 24) : [''];
+      const rowH = Math.max(lLines.length, rLines.length) * 11 + 18;
+      snapH += rowH;
+    }
+  });
+
   setFill(colors.oat);
-  doc.rect(margin, y, contentW, 100, 'F');
+  doc.rect(margin, y, contentW, snapH, 'F');
   setColor(colors.brown);
   doc.setFontSize(7);
   doc.setFont('helvetica','bold');
   doc.text('PRODUCT SNAPSHOT', margin + 12, y + 14);
   rule(y + 18, colors.line);
 
-  const snapFields = [
-    ['Brand', brand], ['Product', product],
-    ['Category', category], ['Price', price],
-    ['Declared Materials', materials], ['Construction', construction],
-    ['Manufacturer Claims', claims], ['Construction Transparency', (constructionTransparency || '—').charAt(0).toUpperCase() + (constructionTransparency || '—').slice(1)]
-  ];
-  const col = contentW / 2;
-  let sx = margin + 12, sy = y + 28;
+  let sy = y + 28;
   snapFields.forEach((pair, i) => {
-    if (i === 2 || i === 4) { sx = margin + 12; sy += 22; }
-    if (i % 2 === 1) sx = margin + col;
+    if (i % 2 !== 0) return;
+    const sx_l = margin + 12;
+    const sx_r = margin + col;
+    const lLines = doc.splitTextToSize(pair[1], col - 24);
+    const rPair = snapFields[i + 1];
+    const rLines = rPair ? doc.splitTextToSize(rPair[1], col - 24) : null;
+    const rowH = Math.max(lLines.length, rLines ? rLines.length : 0) * 11 + 18;
+
     doc.setFontSize(7);
     doc.setFont('helvetica','bold');
     setColor(colors.muted);
-    doc.text(pair[0].toUpperCase(), sx, sy);
+    doc.text(pair[0].toUpperCase(), sx_l, sy);
     doc.setFont('helvetica','normal');
     setColor(colors.ink);
-    const lines = doc.splitTextToSize(pair[1], col - 20);
-    doc.text(lines[0] || '—', sx, sy + 9);
+    doc.setFontSize(8);
+    doc.text(lLines, sx_l, sy + 9);
+
+    if (rPair) {
+      doc.setFontSize(7);
+      doc.setFont('helvetica','bold');
+      setColor(colors.muted);
+      doc.text(rPair[0].toUpperCase(), sx_r, sy);
+      doc.setFont('helvetica','normal');
+      setColor(colors.ink);
+      doc.setFontSize(8);
+      doc.text(rLines, sx_r, sy + 9);
+    }
+    sy += rowH;
   });
 
-  y += 112;
+  y += snapH + 12;
 
   // ── RESULT BADGE ────────────────────────────────────────────────────────────
   checkPage(70);
@@ -1289,10 +1320,21 @@ function generatePDF() {
 
   // ── CLOSING ─────────────────────────────────────────────────────────────────
   checkPage(80);
+
+  // Generate closing dynamically if not manually written or if it contradicts results
+  let closingText = closing;
+  if (!closingText || closingText === '—') {
+    const durWord = durPass ? 'high' : 'insufficient';
+    const washWord = washPass ? 'stable — she can clean it with what she already has' : 'vulnerable — this piece cannot be maintained without specialized care';
+    const beautyWord = beautyPass ? 'meets' : 'does not meet';
+    const verdict = allPass ? 'This piece is éStandard Approved.' : 'This piece Does Not Meet the éStandard.';
+    closingText = `Structurally, this piece demonstrates ${durWord} integrity under the weight of daily family life. Surface performance is ${washWord}. Based on her intake responses, aesthetic conviction ${beautyWord} the éStandard threshold. ${verdict}`;
+  }
+
   setFill(colors.oat);
   setDraw(colors.line);
   doc.setLineWidth(0.5);
-  const closingLines = doc.splitTextToSize(closing, contentW - 24);
+  const closingLines = doc.splitTextToSize(closingText, contentW - 24);
   const closingH = closingLines.length * 13 + 24;
   checkPage(closingH + 8);
   doc.rect(margin, y, contentW, closingH, 'FD');
@@ -1308,7 +1350,7 @@ function generatePDF() {
     setFill([252,251,248]);
     setDraw(colors.line);
     doc.setLineWidth(0.5);
-    const nonApproval = 'A non-approval applies only to this specific piece. It does not eliminate the category or the concept you are drawn to. If you wish to move forward with a similar piece, continue your search for a version that meets all three criteria. Approval is granted only when durability, washability, and beauty each pass.';
+    const nonApproval = 'This determination applies to this specific piece only. A non-approval does not eliminate the category or the piece you are drawn to — it reflects the construction, finish, or conviction level of this particular version. Keep looking. The right piece exists. Apply the éStandard until you find it.';
     const naLines = doc.splitTextToSize(nonApproval, contentW - 24);
     const naH = naLines.length * 12 + 20;
     doc.rect(margin, y, contentW, naH, 'FD');
@@ -1351,4 +1393,3 @@ switchFormType();
 </script>
 </body>
 </html>
-

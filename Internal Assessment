@@ -441,6 +441,7 @@ body {
 
   <!-- SETUP -->
   <div class="setup-card">
+    <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--taupe);margin-bottom:1rem;font-weight:400;">Client + Product Intake</div>
     <div class="setup-grid">
       <div class="setup-field">
         <label>Client Email</label>
@@ -470,20 +471,28 @@ body {
         <input type="text" id="s-price" placeholder="$" />
       </div>
       <div class="setup-field setup-row">
-        <label>Product URL</label>
-        <input type="url" id="s-url" placeholder="https://..." />
+        <label>Declared Materials / Finish</label>
+        <input type="text" id="s-materials" placeholder="e.g. solid oak, oil finish, performance velvet" />
       </div>
       <div class="setup-field setup-row">
-        <label>Declared Materials / Finish</label>
-        <input type="text" id="s-materials" placeholder="e.g. solid oak, oil finish" />
+        <label>Construction Method</label>
+        <input type="text" id="s-construction" placeholder="e.g. solid wood frame, mortise & tenon, knock-down hardware, welded steel" />
       </div>
       <div class="setup-field setup-row">
         <label>Manufacturer Claims (optional)</label>
-        <input type="text" id="s-claims" placeholder="e.g. stain-resistant, solid hardwood frame" />
+        <input type="text" id="s-claims" placeholder="e.g. stain-resistant, solid hardwood frame, performance rated" />
+      </div>
+      <div class="setup-field setup-row">
+        <label>Construction Transparency</label>
+        <div class="radio-group" id="s-transparency" style="margin-top:4px;">
+          <div class="radio-chip" onclick="radioSelectSetup('s-transparency',this,'disclosed')">Disclosed — brand states materials and construction clearly</div>
+          <div class="radio-chip" onclick="radioSelectSetup('s-transparency',this,'partial')">Partial — some information available, some missing</div>
+          <div class="radio-chip" onclick="radioSelectSetup('s-transparency',this,'undisclosed')">Undisclosed — brand does not specify how this is built</div>
+        </div>
       </div>
     </div>
     <div class="api-row" style="justify-content:flex-end;">
-      <button class="ai-fill-btn" id="ai-fill-btn" onclick="aiFill()">AI Pre-Fill ↓</button>
+      <button class="ai-fill-btn" id="ai-fill-btn" onclick="aiFill()">Apply the éStandard ↓</button>
     </div>
     <div class="ai-status" id="ai-status"></div>
   </div>
@@ -536,8 +545,10 @@ body {
         <button class="det-btn" id="beauty-fail-btn" onclick="setDetermination('beauty','fail')">Does Not Pass (A or B majority)</button>
       </div>
 
-      <span class="notes-label">Optional Note (1 sentence)</span>
-      <textarea class="notes-area" id="beauty-notes" rows="2" placeholder="e.g. She loves it. That conviction is real and it meets the threshold."></textarea>
+      <span class="notes-label">Forensic Notes — Conviction Read</span>
+      <textarea class="notes-area" id="beauty-forensic" rows="3" placeholder="What her answers reveal about the nature of her conviction — legacy-grade or trend-grade."></textarea>
+      <span class="notes-label">Practical Translation</span>
+      <textarea class="notes-area" id="beauty-notes" rows="2" placeholder="e.g. She knows exactly what she wants. That certainty meets the threshold."></textarea>
     </div>
   </div>
 
@@ -601,6 +612,13 @@ body {
 // ─── State ────────────────────────────────────────────────────────────────────
 const determinations = { dur: null, wash: null, beauty: null };
 const beautyAnswers = { bq1: null, bq2: null, bq3: null, bq4: null };
+let constructionTransparency = null;
+
+function radioSelectSetup(group, el, val) {
+  document.querySelectorAll('#' + group + ' .radio-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if (group === 's-transparency') constructionTransparency = val;
+}
 
 // ─── Form type ────────────────────────────────────────────────────────────────
 function switchFormType() {
@@ -648,7 +666,9 @@ function renderDurForm(type) {
         <button class="det-btn" id="dur-pass-btn" onclick="setDetermination('dur','pass')">Pass</button>
         <button class="det-btn" id="dur-fail-btn" onclick="setDetermination('dur','fail')">Does Not Pass</button>
       </div>
-      <span class="notes-label">Structural Notes (3–5 sentences)</span>
+      <span class="notes-label">Forensic Notes — Structural Read</span>
+      <textarea class="notes-area" id="dur-forensic" rows="3" placeholder="What the construction evidence actually shows — frame, joinery, stress points, how and where it will age."></textarea>
+      <span class="notes-label">Practical Translation (3–5 sentences)</span>
       <textarea class="notes-area" id="dur-notes" rows="4" placeholder="e.g. The frame is solid hardwood with mortise and tenon joinery. This piece will outlast the room it lives in."></textarea>
     `;
   } else {
@@ -682,7 +702,9 @@ function renderDurForm(type) {
         <button class="det-btn" id="dur-pass-btn" onclick="setDetermination('dur','pass')">Pass</button>
         <button class="det-btn" id="dur-fail-btn" onclick="setDetermination('dur','fail')">Does Not Pass</button>
       </div>
-      <span class="notes-label">Structural Notes (3–4 sentences)</span>
+      <span class="notes-label">Forensic Notes — Structural Read</span>
+      <textarea class="notes-area" id="dur-forensic" rows="3" placeholder="What the construction evidence actually shows — frame, joinery, stress points, how and where it will age."></textarea>
+      <span class="notes-label">Practical Translation (3–4 sentences)</span>
       <textarea class="notes-area" id="dur-notes" rows="4" placeholder="e.g. The frame is solid hardwood with mortise and tenon joinery. This piece will outlast the room it lives in."></textarea>
     `;
   }
@@ -734,7 +756,9 @@ function renderWashForm(type) {
         <button class="det-btn" id="wash-pass-btn" onclick="setDetermination('wash','pass')">Pass</button>
         <button class="det-btn" id="wash-fail-btn" onclick="setDetermination('wash','fail')">Does Not Pass</button>
       </div>
-      <span class="notes-label">Surface Notes (3–5 sentences)</span>
+      <span class="notes-label">Forensic Notes — Surface Read</span>
+      <textarea class="notes-area" id="wash-forensic" rows="3" placeholder="What the surface actually is, what it tolerates chemically, what household products are safe, what will ruin it."></textarea>
+      <span class="notes-label">Practical Translation (3–5 sentences)</span>
       <textarea class="notes-area" id="wash-notes" rows="4" placeholder="e.g. The lacquer finish tolerates regular cleaning with a damp cloth. Spills wipe up. This is washable."></textarea>
     `;
   } else {
@@ -774,7 +798,9 @@ function renderWashForm(type) {
         <button class="det-btn" id="wash-pass-btn" onclick="setDetermination('wash','pass')">Pass</button>
         <button class="det-btn" id="wash-fail-btn" onclick="setDetermination('wash','fail')">Does Not Pass</button>
       </div>
-      <span class="notes-label">Surface Notes (3–4 sentences)</span>
+      <span class="notes-label">Forensic Notes — Surface Read</span>
+      <textarea class="notes-area" id="wash-forensic" rows="3" placeholder="What the surface actually is, what it tolerates chemically, what household products are safe, what will ruin it."></textarea>
+      <span class="notes-label">Practical Translation (3–4 sentences)</span>
       <textarea class="notes-area" id="wash-notes" rows="4" placeholder="e.g. The lacquer finish tolerates regular cleaning with a damp cloth."></textarea>
     `;
   }
@@ -864,75 +890,130 @@ function updateResult() {
 
 // ─── AI Pre-Fill ──────────────────────────────────────────────────────────────
 async function aiFill() {
-  const url = document.getElementById('s-url').value.trim();
   const brand = document.getElementById('s-brand').value.trim();
   const product = document.getElementById('s-product').value.trim();
   const category = document.getElementById('s-category').value.trim();
   const price = document.getElementById('s-price').value.trim();
   const materials = document.getElementById('s-materials').value.trim();
+  const construction = document.getElementById('s-construction').value.trim();
   const claims = document.getElementById('s-claims').value.trim();
+  const transparency = constructionTransparency || 'not selected';
+
+  // Beauty conviction answers
+  const bq1 = beautyAnswers.bq1 || 'Not answered';
+  const bq2 = beautyAnswers.bq2 || 'Not answered';
+  const bq3 = beautyAnswers.bq3 || 'Not answered';
+  const bq4 = beautyAnswers.bq4 || 'Not answered';
+
+  if (!materials && !construction && !brand) {
+    document.getElementById('ai-status').textContent = '✗ Enter at least brand, materials, or construction method before applying the éStandard.';
+    return;
+  }
 
   showLoading(true, 'Applying the éStandard…');
   const btn = document.getElementById('ai-fill-btn');
   btn.disabled = true;
   document.getElementById('ai-status').textContent = '';
 
-  const system = `You are a home goods evaluation engine for Dotéa Home. Evaluate furniture and home goods for durability and washability. Use your knowledge of brands, materials, and construction standards to make a determination.
+  const system = `You are the evaluation engine for Dotéa Home's éStandard Assessment — the internal tool used to determine whether a piece meets the éStandard: Durable, Washable, and Beautiful. All three, or keep looking.
 
-DURABLE — Will it hold up under daily family use for 5-10 years? Consider frame construction, joinery, material grade, and repairability for the price point and brand.
-WASHABLE — Can the owner clean and maintain this themselves without professional help or special products?
+THE éSTANDARD EXISTS TO ENSURE THE PIECES SHE CHOOSES CAN SURVIVE CHILDREN WHILE REMAINING CLEANABLE AND BEAUTIFUL ENOUGH TO ENJOY.
 
-Be direct. State your assessment plainly.
+You write in the voice of Dotéa Home: direct, authoritative, warm without being soft. You are a technical authority, not a reviewer. You do not hedge. You state what the evidence shows and you name the determination.
 
-Return ONLY valid JSON, nothing else:
-{"durPass":true,"durNotes":"3-4 direct sentences on structural durability","washPass":true,"washNotes":"3-4 direct sentences on surface maintenance","closing":"Structurally, this piece demonstrates [high/moderate/insufficient] integrity under expected use. Surface performance is [stable/manageable/vulnerable] under normal maintenance. Based on intake responses, aesthetic conviction [meets/does not meet] the threshold. Therefore, this item [passes/does not pass] the eStandard."}`;
+CONSTRUCTION TRANSPARENCY AS EVIDENCE:
+- Disclosed: Brand states materials and construction clearly. Assess what they've claimed.
+- Partial: Some information is available. Note what is missing and why that matters.
+- Undisclosed: Brand does not specify how this is built. This is not neutral. Treat opacity as a durability finding. Brands that build with solid hardwood say so. The absence of that claim is the claim. State this plainly in the Durability forensic notes.
+- "apply the éStandard" — never "run it through" or "evaluate"
+- "éStandard Approved" or "Does Not Meet the éStandard"
+- "Durable by necessity. Beautiful by design."
+- Washable means she can clean it with what she already has under her sink — dish soap, a damp cloth, a mild all-purpose spray. If it requires professional cleaning, specialized products, or extreme caution, it does not meet the Washable criterion.
+- Beauty is not your judgment of the piece. It is a read of her conviction level based on her intake responses.
+
+FOR EACH CRITERION, produce three things in this order:
+1. FORENSIC NOTES — The technical evidence read. What the construction, materials, or responses actually reveal. Name the stress points. Name the failure modes. Name the surface chemistry. Name what her answers signal about conviction grade.
+2. PRACTICAL TRANSLATION — What that evidence means in her real life, in her home, with her children. Specific. Named. No hedging.
+3. DETERMINATION — Pass or Does Not Meet the éStandard.
+
+Return ONLY valid JSON with no other text, no markdown, no backticks:
+{
+  "durForensic": "Technical structural read — frame, joinery, stress points, failure timeline, how and where it will age",
+  "durNotes": "What that means in her home — specific, named, real-life translation",
+  "durPass": true,
+  "washForensic": "Technical surface read — finish chemistry, what household products are safe, what will strip or damage it, repairability reality",
+  "washNotes": "Can she clean it with what she already has. Name the specific safe products. Name the one thing she should never reach for.",
+  "washPass": true,
+  "beautyForensic": "Read of her conviction level based on intake responses — is this legacy-grade or trend-grade desire",
+  "beautyNotes": "One plain sentence. What her conviction level means for the determination.",
+  "beautyPass": true,
+  "closing": "Structurally, this piece demonstrates [high/moderate/insufficient] integrity under the weight of daily family life. Surface performance is [stable/manageable/vulnerable] — she can clean it with what she already has, or she cannot. Based on her intake responses, aesthetic conviction [meets/does not meet] the éStandard threshold. This piece [is éStandard Approved / Does Not Meet the éStandard]."
+}`;
+
+  let prompt = 'Apply the éStandard to this piece.\n\n';
+  if (brand) prompt += 'Brand: ' + brand + '\n';
+  if (product) prompt += 'Product: ' + product + '\n';
+  if (category) prompt += 'Category: ' + category + '\n';
+  if (price) prompt += 'Price: ' + price + '\n';
+  if (materials) prompt += 'Declared materials / finish: ' + materials + '\n';
+  if (construction) prompt += 'Construction method: ' + construction + '\n';
+  if (claims) prompt += 'Manufacturer claims: ' + claims + '\n';
+  prompt += 'Construction transparency: ' + transparency + '\n';
+  prompt += '\nBeauty conviction intake responses:\n';
+  prompt += 'Q1 (if unavailable tomorrow): ' + bq1 + '\n';
+  prompt += 'Q2 (living with it 10 years): ' + bq2 + '\n';
+  prompt += 'Q3 (if someone questioned it): ' + bq3 + '\n';
+  prompt += 'Q4 (choosing it because): ' + bq4 + '\n';
+  prompt += '\nReturn only the JSON.';
 
   const proxyUrl = 'https://assessment.doteahome.workers.dev';
 
-  async function callClaude() {
-    let p = 'Evaluate this home goods item for durability and washability.\n\n';
-    if (brand) p += 'Brand: ' + brand + '\n';
-    if (product) p += 'Product: ' + product + '\n';
-    if (category) p += 'Category: ' + category + '\n';
-    if (price) p += 'Price: ' + price + '\n';
-    if (materials) p += 'Declared materials: ' + materials + '\n';
-    if (claims) p += 'Manufacturer claims: ' + claims + '\n';
-    if (url) p += 'Product URL for reference: ' + url + '\n';
-    p += '\nReturn only the JSON object, no other text.';
-
+  try {
     const res = await fetch(proxyUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 1000,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
         system,
-        messages: [{ role: 'user', content: p }]
+        messages: [{ role: 'user', content: prompt }]
       })
     });
+
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
+
     const raw = data.content.map(b => b.text || '').join('');
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error(raw.slice(0, 200));
-    return JSON.parse(jsonMatch[0]);
-  }
+    if (!jsonMatch) throw new Error('No JSON returned. Raw: ' + raw.slice(0, 120));
+    const result = JSON.parse(jsonMatch[0]);
 
-  try {
-    const result = await callClaude();
-
+    // Fill durability
+    const durForensic = document.getElementById('dur-forensic');
+    if (durForensic) durForensic.value = result.durForensic || '';
     const durNotes = document.getElementById('dur-notes');
     if (durNotes) durNotes.value = result.durNotes || '';
     setDetermination('dur', result.durPass ? 'pass' : 'fail');
 
+    // Fill washability
+    const washForensic = document.getElementById('wash-forensic');
+    if (washForensic) washForensic.value = result.washForensic || '';
     const washNotes = document.getElementById('wash-notes');
     if (washNotes) washNotes.value = result.washNotes || '';
     setDetermination('wash', result.washPass ? 'pass' : 'fail');
 
+    // Fill beauty
+    const beautyForensic = document.getElementById('beauty-forensic');
+    if (beautyForensic) beautyForensic.value = result.beautyForensic || '';
+    const beautyNotes = document.getElementById('beauty-notes');
+    if (beautyNotes) beautyNotes.value = result.beautyNotes || '';
+    if (result.beautyPass !== undefined) setDetermination('beauty', result.beautyPass ? 'pass' : 'fail');
+
+    // Fill closing
     const closing = document.getElementById('closing-text');
     if (closing && result.closing) closing.value = result.closing;
 
-    document.getElementById('ai-status').textContent = '✓ AI pre-fill complete. Review and edit each section before generating the report.';
+    document.getElementById('ai-status').textContent = '✓ éStandard applied. Review each section before generating the report.';
 
   } catch(err) {
     document.getElementById('ai-status').textContent = '✗ Error: ' + err.message;
@@ -953,264 +1034,298 @@ function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
 
-  const brand    = document.getElementById('s-brand').value.trim() || '—';
-  const product  = document.getElementById('s-product').value.trim() || '—';
+  const brand = document.getElementById('s-brand').value.trim() || '—';
+  const product = document.getElementById('s-product').value.trim() || '—';
   const category = document.getElementById('s-category').value.trim() || '—';
-  const price    = document.getElementById('s-price').value.trim() || '—';
-  const materials= document.getElementById('s-materials').value.trim() || '—';
-  const claims   = document.getElementById('s-claims').value.trim() || '—';
+  const price = document.getElementById('s-price').value.trim() || '—';
+  const materials = document.getElementById('s-materials').value.trim() || '—';
+  const construction = document.getElementById('s-construction').value.trim() || '—';
+
+  const durForensic = document.getElementById('dur-forensic')?.value.trim() || '';
   const durNotes = document.getElementById('dur-notes')?.value.trim() || '—';
-  const washNotes= document.getElementById('wash-notes')?.value.trim() || '—';
+  const washForensic = document.getElementById('wash-forensic')?.value.trim() || '';
+  const washNotes = document.getElementById('wash-notes')?.value.trim() || '—';
+  const beautyForensic = document.getElementById('beauty-forensic')?.value.trim() || '';
   const beautyNotes = document.getElementById('beauty-notes')?.value.trim() || '';
-  const closing  = document.getElementById('closing-text')?.value.trim() || '—';
+  const closing = document.getElementById('closing-text')?.value.trim() || '—';
 
-  const durPass   = determinations.dur === 'pass';
-  const washPass  = determinations.wash === 'pass';
-  const beautyPass= determinations.beauty === 'pass';
-  const allPass   = durPass && washPass && beautyPass;
+  const durPass = determinations.dur === 'pass';
+  const washPass = determinations.wash === 'pass';
+  const beautyPass = determinations.beauty === 'pass';
+  const allPass = durPass && washPass && beautyPass;
 
-  // ── Constants ──
   const PW = 612, PH = 792;
-  const ML = 48, MR = 48;
-  const CW = PW - ML - MR;
-  const LINE_H = 14;
-  let y = 0;
+  const margin = 60;
+  const contentW = PW - margin * 2;
+  let y = margin;
 
-  // ── Colors ──
-  const C = {
-    ink:     [42, 36, 32],
-    brown:   [154, 123, 92],
-    taupe:   [199, 184, 164],
-    muted:   [140, 128, 118],
-    line:    [221, 216, 208],
-    oat:     [245, 241, 234],
-    cream:   [252, 250, 247],
-    white:   [255, 255, 255],
-    passText:[38, 72, 18],
-    failText:[96, 36, 24],
-    passBg:  [232, 243, 222],
-    failBg:  [248, 234, 230],
-    passGreen:[80, 140, 40],
-    failRed: [190, 70, 50]
+  const colors = {
+    ink: [42, 36, 32],
+    brown: [154, 123, 92],
+    taupe: [199, 184, 164],
+    muted: [122, 110, 101],
+    line: [221, 216, 208],
+    oat: [245, 241, 234],
+    pass: [45, 80, 22],
+    fail: [106, 43, 31],
+    passBg: [237, 243, 230],
+    failBg: [247, 237, 234]
   };
 
-  // ── Helpers ──
-  const fc = rgb => doc.setFillColor(...rgb);
-  const tc = rgb => doc.setTextColor(...rgb);
-  const dc = rgb => doc.setDrawColor(...rgb);
-
-  function textBox(text, x, w, startY, fontSize, fontStyle, color, lineH) {
-    doc.setFontSize(fontSize);
-    doc.setFont('helvetica', fontStyle || 'normal');
-    tc(color || C.ink);
-    const lines = doc.splitTextToSize(text, w);
-    doc.text(lines, x, startY);
-    return lines.length * (lineH || LINE_H);
-  }
-
-  function rule(yy) {
-    dc(C.line);
+  function setColor(rgb) { doc.setTextColor(...rgb); }
+  function setFill(rgb) { doc.setFillColor(...rgb); }
+  function setDraw(rgb) { doc.setDrawColor(...rgb); }
+  function rule(yy, color) {
+    color = color || colors.line;
+    setDraw(color);
     doc.setLineWidth(0.5);
-    doc.line(ML, yy, PW - MR, yy);
+    doc.line(margin, yy, PW - margin, yy);
   }
-
-  function sectionBlock(title, pass, notes) {
-    // Calculate height needed
-    doc.setFontSize(9);
-    const noteLines = doc.splitTextToSize(notes || '—', CW - 32);
-    const notesH = noteLines.length * LINE_H + 28;
-    const totalH = 26 + notesH + 12;
-
-    if (y + totalH > PH - 60) {
-      doc.addPage();
-      y = 48;
-      pageHeader();
-    }
-
-    // Header bar — brown color
-    fc(C.brown);
-    dc(C.brown);
-    doc.setLineWidth(0);
-    doc.rect(ML, y, CW, 26, 'F');
-
-    // Title
-    doc.setFontSize(7.5);
-    doc.setFont('helvetica', 'bold');
-    tc([255, 255, 255]);
-    doc.text(title.toUpperCase(), ML + 14, y + 16.5);
-
-    // Status
-    const statusLabel = pass ? 'PASS' : 'DOES NOT PASS';
-    tc(pass ? [180, 230, 140] : [255, 180, 160]);
-    doc.text(statusLabel, PW - MR - 14, y + 16.5, { align: 'right' });
-    y += 26;
-
-    // Notes box
-    fc(C.cream);
-    dc(C.line);
-    doc.setLineWidth(0.5);
-    doc.rect(ML, y, CW, notesH, 'FD');
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    tc(C.ink);
-    doc.text(noteLines, ML + 16, y + 16);
-    y += notesH + 14;
-  }
-
-  function pageHeader() {
+  function newPage() {
+    doc.addPage();
+    y = margin;
+    // header on each page
     doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    tc(C.taupe);
-    doc.text('DOTEA HOME  \u00B7  THE ESTANDARD', ML, 30);
-    doc.text('CONFIDENTIAL', PW - MR, 30, { align: 'right' });
-    rule(36);
+    doc.setFont('helvetica','normal');
+    setColor(colors.taupe);
+    doc.text('DOTÉA HOME · THE éSTANDARD EVALUATION', margin, 30);
+    doc.text('CONFIDENTIAL', PW - margin, 30, { align: 'right' });
+    rule(38, colors.line);
+    y = 55;
+  }
+  function checkPage(needed) {
+    if (y + needed > PH - margin) newPage();
   }
 
-  // ── PAGE 1 ──────────────────────────────────────────────────────────────────
+  // ── HEADER ──────────────────────────────────────────────────────────────────
+  // Brand bar
+  setFill(colors.ink);
+  doc.rect(0, 0, PW, 72, 'F');
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  setColor(colors.taupe);
+  doc.text('DOTÉA HOME', margin, 28);
+  doc.setFontSize(18);
+  doc.setFont('helvetica','normal');
+  setColor([245, 241, 234]);
+  doc.text('é Standard Evaluation', margin, 50);
+  doc.setFontSize(8);
+  setColor(colors.taupe);
+  doc.text('CONFIDENTIAL · CLIENT REPORT', margin, 64);
 
-  // Header bar
-  fc(C.ink);
-  doc.rect(0, 0, PW, 78, 'F');
-
-  // Wordmark
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'normal');
-  tc(C.taupe);
-  doc.text('DOTEA HOME', ML, 26);
-
-  // Title
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'normal');
-  tc(C.oat);
-  doc.text('eStandard Evaluation', ML, 52);
-
-  // Subtitle + date
+  // Date right side
   doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  tc(C.taupe);
-  doc.text('CONFIDENTIAL  \u00B7  CLIENT REPORT', ML, 66);
-  const dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-  doc.text(dateStr, PW - MR, 66, { align: 'right' });
+  doc.text(new Date().toLocaleDateString('en-US', { year:'numeric',month:'long',day:'numeric' }), PW - margin, 50, { align: 'right' });
 
-  y = 92;
+  y = 96;
 
   // ── PRODUCT SNAPSHOT ────────────────────────────────────────────────────────
-  fc(C.oat);
-  dc(C.line);
-  doc.setLineWidth(0.5);
-  doc.rect(ML, y, CW, 108, 'FD');
-
-  // Label
+  setFill(colors.oat);
+  doc.rect(margin, y, contentW, 100, 'F');
+  setColor(colors.brown);
   doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  tc(C.brown);
-  doc.text('PRODUCT SNAPSHOT', ML + 14, y + 14);
+  doc.setFont('helvetica','bold');
+  doc.text('PRODUCT SNAPSHOT', margin + 12, y + 14);
+  rule(y + 18, colors.line);
 
-  // Divider inside box
-  dc(C.line);
-  doc.line(ML, y + 20, ML + CW, y + 20);
-
-  // Fields — 2 columns
-  const colW = CW / 2;
-  const fields = [
-    ['BRAND', brand], ['PRODUCT', product],
-    ['CATEGORY', category], ['PRICE', price],
-    ['DECLARED MATERIALS', materials], ['MANUFACTURER CLAIMS', claims]
+  const snapFields = [
+    ['Brand', brand], ['Product', product],
+    ['Category', category], ['Price', price],
+    ['Declared Materials', materials], ['Construction', construction],
+    ['Manufacturer Claims', claims], ['Construction Transparency', (constructionTransparency || '—').charAt(0).toUpperCase() + (constructionTransparency || '—').slice(1)]
   ];
-
-  let fy = y + 32;
-  fields.forEach((f, i) => {
-    const fx = ML + 14 + (i % 2 === 1 ? colW : 0);
-    if (i > 0 && i % 2 === 0) fy += 28;
-
-    doc.setFontSize(6.5);
-    doc.setFont('helvetica', 'bold');
-    tc(C.muted);
-    doc.text(f[0], fx, fy);
-
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'normal');
-    tc(C.ink);
-    const val = doc.splitTextToSize(f[1], colW - 28);
-    doc.text(val[0] || '—', fx, fy + 10);
+  const col = contentW / 2;
+  let sx = margin + 12, sy = y + 28;
+  snapFields.forEach((pair, i) => {
+    if (i === 2 || i === 4) { sx = margin + 12; sy += 22; }
+    if (i % 2 === 1) sx = margin + col;
+    doc.setFontSize(7);
+    doc.setFont('helvetica','bold');
+    setColor(colors.muted);
+    doc.text(pair[0].toUpperCase(), sx, sy);
+    doc.setFont('helvetica','normal');
+    setColor(colors.ink);
+    const lines = doc.splitTextToSize(pair[1], col - 20);
+    doc.text(lines[0] || '—', sx, sy + 9);
   });
 
-  y += 120;
+  y += 112;
 
-  // ── VERDICT BADGE ───────────────────────────────────────────────────────────
-  const vBg  = allPass ? C.passBg  : C.failBg;
-  const vTxt = allPass ? C.passText: C.failText;
-  const vBdr = allPass ? C.passGreen: C.failRed;
-
-  fc(vBg);
-  dc(vBdr);
-  doc.setLineWidth(1);
-  doc.rect(ML, y, CW, 58, 'FD');
-
-  doc.setFontSize(15);
-  doc.setFont('helvetica', 'bold');
-  tc(vTxt);
-  doc.text(allPass ? 'Passes the eStandard' : 'Does Not Pass the eStandard', PW / 2, y + 24, { align: 'center' });
-
+  // ── RESULT BADGE ────────────────────────────────────────────────────────────
+  checkPage(70);
+  const badgeColor = allPass ? colors.pass : colors.fail;
+  const badgeBg = allPass ? colors.passBg : colors.failBg;
+  setFill(badgeBg);
+  doc.rect(margin, y, contentW, 52, 'F');
+  setDraw(badgeColor);
+  doc.setLineWidth(0.75);
+  doc.rect(margin, y, contentW, 52);
+  doc.setFontSize(16);
+  doc.setFont('helvetica','bold');
+  setColor(badgeColor);
+  doc.text(allPass ? 'Passes the é Standard' : 'Does Not Pass the é Standard', PW/2, y + 22, { align: 'center' });
   doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  tc(C.muted);
-  doc.text(
-    `Durable: ${durPass ? 'Pass' : 'Fail'}   \u00B7   Washable: ${washPass ? 'Pass' : 'Fail'}   \u00B7   Beautiful: ${beautyPass ? 'Pass' : 'Fail'}`,
-    PW / 2, y + 42, { align: 'center' }
-  );
+  doc.setFont('helvetica','normal');
+  const sub = `Durable: ${durPass ? 'Pass' : 'Fail'} · Washable: ${washPass ? 'Pass' : 'Fail'} · Beautiful: ${beautyPass ? 'Pass' : 'Fail'}`;
+  doc.text(sub, PW/2, y + 38, { align: 'center' });
+  y += 68;
 
-  y += 72;
-
-  // ── SECTIONS ────────────────────────────────────────────────────────────────
-  sectionBlock('1 — Durability', durPass, durNotes);
-  sectionBlock('2 — Washability', washPass, washNotes);
-
-  const beautyText = beautyNotes || (beautyPass ? 'Strong aesthetic conviction. The client response meets the eStandard threshold.' : 'Conviction level does not meet the eStandard threshold.');
-  sectionBlock('3 — Beauty (Client Conviction)', beautyPass, beautyText);
-
-  // ── CLOSING ─────────────────────────────────────────────────────────────────
-  doc.setFontSize(9);
-  const closingLines = doc.splitTextToSize(closing, CW - 32);
-  const closingH = closingLines.length * LINE_H + 28;
-
-  if (y + closingH > PH - 60) { doc.addPage(); y = 48; pageHeader(); }
-
-  fc(C.oat);
-  dc(C.line);
-  doc.setLineWidth(0.5);
-  doc.rect(ML, y, CW, closingH, 'FD');
-  doc.setFont('helvetica', 'normal');
-  tc(C.ink);
-  doc.text(closingLines, ML + 16, y + 18);
-  y += closingH + 14;
-
-  // ── NON-APPROVAL ────────────────────────────────────────────────────────────
-  if (!allPass) {
-    const naText = 'A non-approval applies only to this specific piece. It does not eliminate the category or the concept you are drawn to. If you wish to move forward, continue your search for a version that meets all three criteria. Approval is granted only when durability, washability, and beauty each pass.';
+  // ── SECTION FUNCTION ────────────────────────────────────────────────────────
+  function section(title, pass, forensic, notes) {
+    checkPage(90);
+    // Section header
+    setFill(colors.ink);
+    doc.rect(margin, y, contentW, 22, 'F');
     doc.setFontSize(8);
-    const naLines = doc.splitTextToSize(naText, CW - 32);
-    const naH = naLines.length * 12 + 24;
+    doc.setFont('helvetica','bold');
+    setColor([245,241,234]);
+    doc.text(title.toUpperCase(), margin + 12, y + 14);
 
-    if (y + naH > PH - 60) { doc.addPage(); y = 48; pageHeader(); }
+    const statusText = pass ? 'éSTANDARD APPROVED' : 'DOES NOT MEET THE éSTANDARD';
+    const statusColor = pass ? [125,201,94] : [224,112,96];
+    setColor(statusColor);
+    doc.text(statusText, PW - margin - 12, y + 14, { align: 'right' });
+    y += 30;
 
-    fc(C.white);
-    dc(C.line);
-    doc.rect(ML, y, CW, naH, 'FD');
-    tc(C.muted);
-    doc.text(naLines, ML + 16, y + 15);
-    y += naH + 14;
+    // Forensic notes
+    if (forensic) {
+      checkPage(60);
+      doc.setFontSize(7);
+      doc.setFont('helvetica','bold');
+      setColor(colors.brown);
+      doc.text('FORENSIC READ', margin, y);
+      y += 10;
+      const fLines = doc.splitTextToSize(forensic, contentW - 24);
+      const fH = fLines.length * 12 + 20;
+      checkPage(fH);
+      setFill([249, 247, 243]);
+      setDraw(colors.line);
+      doc.setLineWidth(0.5);
+      doc.rect(margin, y, contentW, fH, 'FD');
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica','normal');
+      setColor(colors.muted);
+      doc.text(fLines, margin + 12, y + 13);
+      y += fH + 8;
+    }
+
+    // Practical translation
+    if (notes) {
+      checkPage(60);
+      doc.setFontSize(7);
+      doc.setFont('helvetica','bold');
+      setColor(colors.brown);
+      doc.text('WHAT THIS MEANS', margin, y);
+      y += 10;
+      const noteLines = doc.splitTextToSize(notes, contentW - 24);
+      const noteH = noteLines.length * 13 + 20;
+      checkPage(noteH);
+      setFill([252, 251, 248]);
+      setDraw(colors.line);
+      doc.setLineWidth(0.5);
+      doc.rect(margin, y, contentW, noteH, 'FD');
+      doc.setFontSize(9);
+      doc.setFont('helvetica','normal');
+      setColor(colors.ink);
+      doc.text(noteLines, margin + 12, y + 14);
+      y += noteH + 12;
+    }
   }
 
-  // ── PAGE FOOTER ─────────────────────────────────────────────────────────────
-  rule(PH - 38);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  tc(C.taupe);
-  doc.text('Dotea Home  \u00B7  eStandard Evaluation', ML, PH - 24);
-  doc.text('doteahome.store', PW - MR, PH - 24, { align: 'right' });
+  section('1 — Durability', durPass, durForensic, durNotes);
+  section('2 — Washability', washPass, washForensic, washNotes);
 
-  const filename = `eStandard-${(product||'Evaluation').replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`;
+  // Beauty
+  checkPage(70);
+  setFill(colors.ink);
+  doc.rect(margin, y, contentW, 22, 'F');
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  setColor([245,241,234]);
+  doc.text('3 — BEAUTY (CLIENT CONVICTION)', margin + 12, y + 14);
+  setColor(beautyPass ? [125,201,94] : [224,112,96]);
+  doc.text(beautyPass ? 'éSTANDARD APPROVED' : 'DOES NOT MEET THE éSTANDARD', PW - margin - 12, y + 14, { align: 'right' });
+  y += 30;
+
+  if (beautyForensic) {
+    checkPage(50);
+    doc.setFontSize(7);
+    doc.setFont('helvetica','bold');
+    setColor(colors.brown);
+    doc.text('CONVICTION READ', margin, y);
+    y += 10;
+    const bfLines = doc.splitTextToSize(beautyForensic, contentW - 24);
+    const bfH = bfLines.length * 12 + 20;
+    setFill([249,247,243]);
+    setDraw(colors.line);
+    doc.setLineWidth(0.5);
+    doc.rect(margin, y, contentW, bfH, 'FD');
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica','normal');
+    setColor(colors.muted);
+    doc.text(bfLines, margin + 12, y + 13);
+    y += bfH + 8;
+  }
+
+  const beautyLevelText = determinations.beauty === 'pass' ? 'Strong aesthetic conviction.' : 'Conviction level does not meet the éStandard threshold.';
+  const beautyFullText = beautyNotes || beautyLevelText;
+  checkPage(50);
+  doc.setFontSize(7);
+  doc.setFont('helvetica','bold');
+  setColor(colors.brown);
+  doc.text('WHAT THIS MEANS', margin, y);
+  y += 10;
+  const bLines = doc.splitTextToSize(beautyFullText, contentW - 24);
+  const bH = bLines.length * 13 + 20;
+  setFill([252,251,248]);
+  setDraw(colors.line);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, y, contentW, bH, 'FD');
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  setColor(colors.ink);
+  doc.text(bLines, margin + 12, y + 14);
+  y += bH + 16;
+
+  // ── CLOSING ─────────────────────────────────────────────────────────────────
+  checkPage(80);
+  setFill(colors.oat);
+  setDraw(colors.line);
+  doc.setLineWidth(0.5);
+  const closingLines = doc.splitTextToSize(closing, contentW - 24);
+  const closingH = closingLines.length * 13 + 24;
+  checkPage(closingH + 8);
+  doc.rect(margin, y, contentW, closingH, 'FD');
+  doc.setFontSize(10);
+  doc.setFont('helvetica','normal');
+  setColor(colors.ink);
+  doc.text(closingLines, margin + 12, y + 16);
+  y += closingH + 20;
+
+  // ── FOOTER ──────────────────────────────────────────────────────────────────
+  if (!allPass) {
+    checkPage(65);
+    setFill([252,251,248]);
+    setDraw(colors.line);
+    doc.setLineWidth(0.5);
+    const nonApproval = 'A non-approval applies only to this specific piece. It does not eliminate the category or the concept you are drawn to. If you wish to move forward with a similar piece, continue your search for a version that meets all three criteria. Approval is granted only when durability, washability, and beauty each pass.';
+    const naLines = doc.splitTextToSize(nonApproval, contentW - 24);
+    const naH = naLines.length * 12 + 20;
+    doc.rect(margin, y, contentW, naH, 'FD');
+    doc.setFontSize(8);
+    setColor(colors.muted);
+    doc.text(naLines, margin + 12, y + 13);
+    y += naH + 16;
+  }
+
+  // Page footer on last page
+  rule(PH - 36, colors.line);
+  doc.setFontSize(7);
+  setColor(colors.taupe);
+  doc.text('Dotéa Home · éStandard Evaluation', margin, PH - 22);
+  doc.text('doteahome.store', PW - margin, PH - 22, { align: 'right' });
+
+  const filename = `eStandard-${(product || 'Evaluation').replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`;
   doc.save(filename);
 }
 
@@ -1219,6 +1334,7 @@ function clearAll() {
   if (!confirm('Clear all fields?')) return;
   document.querySelectorAll('input[type=text], input[type=url], input[type=email], textarea').forEach(el => el.value = '');
   document.querySelectorAll('.radio-chip.active, .check-chip.active').forEach(el => el.classList.remove('active'));
+  constructionTransparency = null;
   document.querySelectorAll('.det-btn').forEach(el => el.classList.remove('active-pass','active-fail'));
   Object.keys(determinations).forEach(k => determinations[k] = null);
   Object.keys(beautyAnswers).forEach(k => beautyAnswers[k] = null);
@@ -1235,3 +1351,4 @@ switchFormType();
 </script>
 </body>
 </html>
+
